@@ -6,10 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.hometask.dto.OldEmployeeDto;
 import ru.hometask.dto.UpdateEmployeeDto;
-import ru.hometask.entities.Employee;
-import ru.hometask.entities.IssuePoint;
-import ru.hometask.entities.PowerOfAttorney;
-import ru.hometask.entities.Role;
+import ru.hometask.entities.*;
 import ru.hometask.mappers.EmployeeMapper;
 import ru.hometask.repositories.EmployeeRepository;
 import ru.hometask.repositories.IssuePointRepository;
@@ -38,8 +35,7 @@ public class EmployeeService {
     }
 
     public List<OldEmployeeDto> getAllEmployee () {
-        List<Employee> employees = employeeRepository.findAll();
-        return employeeMapper.toUpdateDtoList(employees);
+        return employeeMapper.toUpdateDtoList(employeeRepository.findAll());
     }
 
     @Transactional

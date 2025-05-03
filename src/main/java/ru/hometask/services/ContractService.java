@@ -25,10 +25,10 @@ public class ContractService {
 
     @Transactional
     public NewContractDto addContract(NewContractDto newContract) {
-        Employee employee = employeeRepository.getReferenceById(newContract.getIdEmployee());
-        Client client = clientRepository.getReferenceById(newContract.getIdClient());
-        IssuePoint issuePoint = issuePointRepository.getReferenceById(newContract.getIdIssuePoint());
-        Status status = statusRepository.getReferenceById(newContract.getIdStatus());
+        Employee employee = employeeRepository.getReferenceById(newContract.getEmployeeId());
+        Client client = clientRepository.getReferenceById(newContract.getClientId());
+        IssuePoint issuePoint = issuePointRepository.getReferenceById(newContract.getIssuePointId());
+        Status status = statusRepository.getReferenceById(newContract.getStatusId());
 
         Contract contract = contractMapper.newContractMapping(newContract);
         contract.setClient(client);
@@ -54,8 +54,7 @@ public class ContractService {
     }
 
     public List<OldContractDto> getAllContract() {
-        List <Contract> allContract = contractRepository.findAll();
-        return contractMapper.noPasswordContractDTO(allContract);
+        return contractMapper.noPasswordContractDTO(contractRepository.findAll());
     }
 
     @Transactional
@@ -64,8 +63,37 @@ public class ContractService {
                 .orElseThrow(() -> new EntityNotFoundException("Контракт не найден"));
 
         updateFromDto(dto, contract);
-        // save() не обязателен, т.к. @Transactional сохранит изменения автоматически
         return dto;
+    }
+
+    @Transactional
+    public OldContractDto closeStatus (OldContractDto closeStatusContractDto) {
+        Contract contract = contractRepository.findById(closeStatusContractDto.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Контракт не найден"));
+
+        closeStatusContract(closeStatusContractDto, contract);
+        return closeStatusContractDto;
+    }
+
+    /**
+     * Закрывает статус договора, устанавливая статус "Закрыт" (ID = 2)
+     *
+     * @param closeStatusContractDto DTO с данными для закрытия договора
+     * @param contract Сущность договора для обновления
+     * @throws EntityNotFoundException если статус с ID=2 не найден
+     * @throws IllegalArgumentException если переданные параметры null
+     */
+    private void closeStatusContract(OldContractDto closeStatusContractDto, Contract contract) {
+        if (closeStatusContractDto == null || contract == null) {
+            throw new IllegalArgumentException("Параметры closeStatusContractDto и contract не могут быть null");
+        }
+
+        final Long CLOSED_STATUS_ID = 2L;
+        Status closedStatus = statusRepository.findById(CLOSED_STATUS_ID)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format("Статус с ID=%d не найден", CLOSED_STATUS_ID)));
+
+        contract.setStatus(closedStatus);
     }
 
     private void updateFromDto(UpdateContractDto dto, Contract contract) {

@@ -9,6 +9,7 @@ import ru.hometask.dto.OldClientDto;
 import ru.hometask.entities.Client;
 import ru.hometask.mappers.ClientMapper;
 import ru.hometask.repositories.ClientRepository;
+import ru.hometask.repositories.ContractRepository;
 
 import java.util.List;
 
@@ -18,6 +19,11 @@ public class ClientService {
 
     private final ClientRepository clientRepository;
     private final ClientMapper clientMapper;
+
+    @Transactional
+    public Client saveClient(Client client) {
+        return clientRepository.save(client);
+    }
 
     @Transactional
     public NewClientDto addClient (NewClientDto newClient) {

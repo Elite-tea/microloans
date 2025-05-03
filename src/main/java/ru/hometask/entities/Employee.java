@@ -23,7 +23,7 @@ public class Employee {
     private String login;
 
     @Column(name = "password")
-    private char[] password;
+    private String password;
 
     @ManyToOne
     @JoinColumn(name = "role_id")

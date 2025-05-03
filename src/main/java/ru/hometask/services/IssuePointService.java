@@ -18,13 +18,16 @@ public class IssuePointService {
     private final IssuePointRepository issuePointRepository;
     private final IssuePointMapper issuePointMapper;
 
-    public OldIssuePointDto getIssuePoint(Long idIssuePoint) {
-        IssuePoint issuePoint = issuePointRepository.getReferenceById(idIssuePoint);
+    @Transactional
+    public OldIssuePointDto getIssuePoint(Long issuePointId) {
+        IssuePoint issuePoint = issuePointRepository.getReferenceById(issuePointId);
         return issuePointMapper.oldIssuePointMapper(issuePoint);
     }
 
     public List<IssuePoint> getAllIssuePoint () {
-        return issuePointRepository.findAll();
+        List<IssuePoint> listpoint = issuePointRepository.findAll();
+
+        return listpoint;
     }
 
     @Transactional

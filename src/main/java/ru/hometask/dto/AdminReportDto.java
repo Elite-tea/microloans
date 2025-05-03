@@ -9,6 +9,6 @@ public class AdminReportDto {
 
     String issuePointName;
     String statusName;
-    Long allAmount;
+    double allAmount;
     Long allCostContract;
 }

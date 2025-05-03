@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.hometask.services.ExcelExportService;
 
 @RestController
-@RequestMapping("/excel")
+@RequestMapping("/api/excel")
 public class ExcelExportController {
 
     private final ExcelExportService excelExportService;
@@ -20,7 +20,7 @@ public class ExcelExportController {
         this.excelExportService = excelExportService;
     }
 
-    @GetMapping(value = "export/{idContract}/", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @GetMapping(value = "export/{idContract}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<Resource> exportToExcel(@PathVariable Long idContract) {
         Resource file = excelExportService.exportToExcel(idContract);
 

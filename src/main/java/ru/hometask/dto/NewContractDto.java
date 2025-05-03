@@ -6,29 +6,30 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Setter
 @Getter
 public class NewContractDto {
 
-    private Long idClient;
+    private Long clientId;
 
-    private int amount;
+    private BigDecimal amount;
 
     @NotNull
     @Future
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime dateOfIssue;
 
-    private Long idEmployee;
+    private Long employeeId;
 
     @NotNull
     @Future
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime dateTerm;
 
-    private Long idIssuePoint;
+    private Long issuePointId;
 
-    private Long idStatus;
+    private Long statusId;
 }

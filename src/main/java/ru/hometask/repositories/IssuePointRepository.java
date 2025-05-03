@@ -9,5 +9,5 @@ import java.util.Optional;
 
 @Repository
 public interface IssuePointRepository extends JpaRepository<IssuePoint, Long>, JpaSpecificationExecutor<IssuePoint> {
-    Optional<IssuePoint> findById(Long id);
+
 }

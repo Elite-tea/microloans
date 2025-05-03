@@ -27,12 +27,12 @@ INSERT INTO power_of_attorneys (number, date_poa) VALUES
 INSERT INTO employees
  (full_name, login, password, role_id, issue_point_id, power_of_attorney_id) VALUES
 -- Админы
-('Иванов Иван', 'admin1', '$2a$10$rS.FGqwZJRUYvJVFXHBYAOBqxDZZCxf0oVwqHJ7qZ8I1QvNBl7Iri', 1, 1, 1), -- pass: adm1
-('Петров Петр', 'admin2', '$2a$10$rS.FGqwZJRUYvJVFXHBYAOBqxDZZCxf0oVwqHJ7qZ8I1QvNBl7Iri', 1, 2, 2), -- pass: adm2
+('Иванов Иван', 'admin1', '$2a$10$zYX3r.1D6jhdEu4PV3Dk5.HEw0TkgTKEaZNQZGP.R6plPkzOONj96', 1, 2, 2), -- pass: adm1
+('Петров Петр', 'admin2', '$2a$10$zYX3r.1D6jhdEu4PV3Dk5.HEw0TkgTKEaZNQZGP.R6plPkzOONj96', 1, 2, 2), -- pass: adm2
 -- Пользователи
-('Сидоров Сидор', 'user1', '$2a$10$rS.FGqwZJRUYvJVFXHBYAOBqxDZZCxf0oVwqHJ7qZ8I1QvNBl7Iri', 2, 1, 3), -- pass: usr1
-('Николаев Николай', 'user2', '$2a$10$rS.FGqwZJRUYvJVFXHBYAOBqxDZZCxf0oVwqHJ7qZ8I1QvNBl7Iri', 2, 2, 4), -- pass: usr2
-('Андреев Андрей', 'user3', '$2a$10$rS.FGqwZJRUYvJVFXHBYAOBqxDZZCxf0oVwqHJ7qZ8I1QvNBl7Iri', 2, 3, 5); -- pass: usr3
+('Сидоров Сидор', 'user1', '$2a$10$zYX3r.1D6jhdEu4PV3Dk5.HEw0TkgTKEaZNQZGP.R6plPkzOONj96', 2, 1, 3), -- pass: usr1
+('Николаев Николай', 'user2', '$2a$10$zYX3r.1D6jhdEu4PV3Dk5.HEw0TkgTKEaZNQZGP.R6plPkzOONj96', 2, 2, 4), -- pass: usr2
+('Андреев Андрей', 'user3', '$2a$10$zYX3r.1D6jhdEu4PV3Dk5.HEw0TkgTKEaZNQZGP.R6plPkzOONj96', 2, 3, 5); -- pass: usr3
 
 -- Клиенты
 INSERT INTO clients (full_name, phone) VALUES

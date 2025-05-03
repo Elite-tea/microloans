@@ -4,9 +4,11 @@ import jakarta.validation.constraints.Min;
 import lombok.Getter;
 import lombok.Setter;
 import ru.hometask.entities.Client;
+import ru.hometask.entities.Employee;
 import ru.hometask.entities.IssuePoint;
 import ru.hometask.entities.Status;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Setter
@@ -18,7 +20,7 @@ public class OldContractDto {
 
     private Client client;
 
-    private Long amount;
+    private BigDecimal amount;
 
     private LocalDateTime dateOfIssue;
 

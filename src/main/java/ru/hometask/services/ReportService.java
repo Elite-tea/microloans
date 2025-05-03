@@ -1,8 +1,10 @@
 package ru.hometask.services;
 
+import com.nimbusds.jose.util.Pair;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.hometask.dto.AdminReportDto;
+import ru.hometask.dto.OldContractDto;
 import ru.hometask.entities.Contract;
 import ru.hometask.mappers.ReportMapper;
 import ru.hometask.repositories.ContractRepository;
@@ -36,7 +38,7 @@ public class ReportService {
                                     AdminReportDto dto = new AdminReportDto();
                                     dto.setIssuePointName(contracts.get(0).getIssuePoint().getName());
                                     dto.setStatusName(contracts.get(0).getStatus().getName());
-                                    dto.setAllAmount(contracts.stream().mapToLong(Contract::getAmount).sum());
+                                    dto.setAllAmount(contracts.stream().mapToDouble(Contract::getAmount).sum());
                                     dto.setAllCostContract((long) contracts.size());
                                     return dto;
                                 }

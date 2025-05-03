@@ -14,7 +14,7 @@ public class UpdateEmployeeDto {
 
     private String login;
 
-    private char[] password;
+    private String password;
 
     private Long roleId;
 

@@ -5,6 +5,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.hometask.entities.Contract;
 import ru.hometask.repositories.ContractRepository;
 
@@ -21,6 +22,7 @@ public class ExcelExportService {
         this.contractRepository = contractRepository;
     }
 
+    @Transactional
     public Resource exportToExcel(Long id) {
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Contracts");
@@ -36,7 +38,8 @@ public class ExcelExportService {
             createHeaderCell(headerRow, 3, "Дата заключения", headerStyle);
             createHeaderCell(headerRow, 4, "Дата последнего платежа", headerStyle);
             createHeaderCell(headerRow, 5, "Статус", headerStyle);
-            createHeaderCell(headerRow, 6, "Сотрудник", headerStyle);
+            createHeaderCell(headerRow, 6, "Точка выдачи", headerStyle);
+            createHeaderCell(headerRow, 7, "Сотрудник", headerStyle);
 
             // Получаем данные из БД
             Contract contracts = contractRepository.getReferenceById(id);
@@ -51,10 +54,11 @@ public class ExcelExportService {
                 row.createCell(3).setCellValue(contracts.getDateOfIssue().toString());
                 row.createCell(4).setCellValue(contracts.getDateTerm().toString());
                 row.createCell(5).setCellValue(contracts.getStatus().getName());
-                row.createCell(6).setCellValue(contracts.getEmployee().getFullName());
+                row.createCell(6).setCellValue(contracts.getIssuePoint().getName());
+                row.createCell(7).setCellValue(contracts.getEmployee().getFullName());
 
             // Размер колонок
-            for (int i = 0; i < 7; i++) {
+            for (int i = 0; i < 8; i++) {
                 sheet.autoSizeColumn(i);
             }
 

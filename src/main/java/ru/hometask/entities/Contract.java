@@ -3,6 +3,7 @@ package ru.hometask.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -23,7 +24,7 @@ public class Contract {
     private Client client;
 
     @Column(name = "amount")
-    private int amount;
+    private double amount;
 
     @Column(name = "issue_date")
     private LocalDateTime dateOfIssue;
