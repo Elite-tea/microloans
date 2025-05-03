@@ -7,22 +7,20 @@ services:
       - "8080:8080"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/microloans
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_DATASOURCE_USERNAME=data
+      - SPRING_DATASOURCE_PASSWORD=data
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
     depends_on:
       - db
 
   db:
     image: postgres:15
+    container_name: database
     ports:
       - "5432:5432"
-    environment:
-      - POSTGRES_DB=microloans
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-volumes:
-  postgres_data: 
+      - /var/lib/postgresql/database
+    environment:
+      - POSTGRES_USER=data
+      - POSTGRES_PASSWORD=data1234567890
+      - POSTGRES_DB=microloans
