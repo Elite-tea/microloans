@@ -2,7 +2,6 @@ package ru.hometask.services;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.hometask.entities.Role;
 import ru.hometask.repositories.RoleRepository;
 

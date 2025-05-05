@@ -3,19 +3,13 @@ package ru.hometask.controllers;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.hometask.dto.NewContractDto;
 import ru.hometask.dto.OldContractDto;
 import ru.hometask.dto.UpdateContractDto;
-import ru.hometask.entities.Contract;
 import ru.hometask.services.ContractService;
 
-
-import java.io.IOException;
 import java.util.List;
 
 @RestController

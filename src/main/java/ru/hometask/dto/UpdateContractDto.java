@@ -16,7 +16,7 @@ public class UpdateContractDto {
 
     private Long clientId;
 
-    private double amount;
+    private BigDecimal amount;
 
     private LocalDateTime dateOfIssue;
 

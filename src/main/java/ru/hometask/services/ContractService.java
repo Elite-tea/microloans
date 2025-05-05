@@ -106,9 +106,6 @@ public class ContractService {
                     .orElseThrow(() -> new EntityNotFoundException("Контракт не найден."));
             contract.setClient(client);
         }
-        if (dto.getAmount() != 0 && dto.getAmount() != oldContract.getAmount() ) {
-            contract.setAmount(dto.getAmount());
-        }
         if (!dto.getDateOfIssue().isEqual(oldContract.getDateOfIssue())) {
             contract.setDateOfIssue(dto.getDateOfIssue());
         }

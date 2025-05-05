@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS employees (
 CREATE TABLE IF NOT EXISTS contracts (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     client_id BIGINT NOT NULL,
-    amount DECIMAL(20,2) NOT NULL,
+    amount DECIMAL(20,2) NOT NULL CHECK (amount = TRUNC(amount, 2)),
     issue_date TIMESTAMP NOT NULL,
     employee_id BIGINT NOT NULL,
     term_date TIMESTAMP NOT NULL,

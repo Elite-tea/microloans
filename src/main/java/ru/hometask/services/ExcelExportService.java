@@ -50,7 +50,7 @@ public class ExcelExportService {
                 Row row = sheet.createRow(rowNum++);
                 row.createCell(0).setCellValue(contracts.getId());
                 row.createCell(1).setCellValue(contracts.getClient().getFullName());
-                row.createCell(2).setCellValue(contracts.getAmount());
+                row.createCell(2).setCellValue(String.valueOf(contracts.getAmount()));
                 row.createCell(3).setCellValue(contracts.getDateOfIssue().toString());
                 row.createCell(4).setCellValue(contracts.getDateTerm().toString());
                 row.createCell(5).setCellValue(contracts.getStatus().getName());

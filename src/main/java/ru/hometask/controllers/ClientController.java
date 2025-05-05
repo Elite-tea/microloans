@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.hometask.dto.NewClientDto;
-import ru.hometask.dto.NewContractDto;
 import ru.hometask.dto.OldClientDto;
 import ru.hometask.entities.Client;
 import ru.hometask.services.ClientService;

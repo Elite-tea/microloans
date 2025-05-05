@@ -9,7 +9,6 @@ import ru.hometask.dto.OldClientDto;
 import ru.hometask.entities.Client;
 import ru.hometask.mappers.ClientMapper;
 import ru.hometask.repositories.ClientRepository;
-import ru.hometask.repositories.ContractRepository;
 
 import java.util.List;
 

@@ -374,7 +374,7 @@ public class ContractsView extends VerticalLayout {
      */
     private void downloadContract(OldContractDto contract) {
         try {
-            String url = "/api/excel/export/" + contract.getId();
+            String url = "/excel/export/" + contract.getId();
             UI.getCurrent().getPage().open(url, "_blank");
             showNotification("Документ готов к скачиванию", NotificationVariant.LUMO_SUCCESS);
         } catch (Exception ex) {
