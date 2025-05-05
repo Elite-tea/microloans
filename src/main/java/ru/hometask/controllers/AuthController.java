@@ -17,7 +17,7 @@ import ru.hometask.repositories.PowerOfAttorneyRepository;
 import ru.hometask.repositories.RoleRepository;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/authR")
 public class AuthController {
 
     private final EmployeeRepository employeeRepository;
