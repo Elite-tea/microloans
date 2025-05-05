@@ -7,9 +7,14 @@ import java.time.LocalDateTime;
 /**
  * Сущность, представляющая договор между клиентом и компанией.
  * Содержит информацию о сторонах договора, финансовых условиях и сроках действия.
+ * Добавил для наглядности использование индексов
  */
 @Entity
-@Table(name = "contracts")
+@Table(name = "contracts",
+        indexes = {
+                @Index(name = "idx_contracts_client_id", columnList = "client_id"),
+                @Index(name = "idx_contracts_status_id", columnList = "status_id")
+        })
 @Setter
 @Getter
 @AllArgsConstructor
