@@ -2,6 +2,8 @@ package ru.hometask.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -41,7 +43,7 @@ public class Contract {
      * Сумма договора в базовой валюте системы
      */
     @Column(name = "amount", nullable = false, scale = 2)
-    private double amount;
+    private BigDecimal amount;
 
     /**
      * Дата и время заключения договора

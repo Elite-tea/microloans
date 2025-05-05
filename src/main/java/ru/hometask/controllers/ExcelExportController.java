@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.hometask.services.ExcelExportService;
 
 @RestController
-@RequestMapping("/api/excel")
+@RequestMapping("/excel")
 public class ExcelExportController {
 
     private final ExcelExportService excelExportService;

@@ -1,7 +1,6 @@
 package ru.hometask.mappers;
 
 import org.mapstruct.Mapper;
-import org.mapstruct.MappingConstants;
 import ru.hometask.dto.OldIssuePointDto;
 import ru.hometask.entities.IssuePoint;
 

@@ -1,14 +1,13 @@
 package ru.hometask.services;
 
-import com.nimbusds.jose.util.Pair;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.hometask.dto.AdminReportDto;
-import ru.hometask.dto.OldContractDto;
 import ru.hometask.entities.Contract;
 import ru.hometask.mappers.ReportMapper;
 import ru.hometask.repositories.ContractRepository;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -22,7 +21,7 @@ public class ReportService {
     ReportMapper reportMapper;
 
     public List<AdminReportDto> getReportActive() {
-        //Все активные договора
+        // Все активные договора
         List<Contract> sourceContract = contractRepository.findAll();
 
         List<AdminReportDto> returnReportActive = sourceContract.stream()
@@ -38,7 +37,13 @@ public class ReportService {
                                     AdminReportDto dto = new AdminReportDto();
                                     dto.setIssuePointName(contracts.get(0).getIssuePoint().getName());
                                     dto.setStatusName(contracts.get(0).getStatus().getName());
-                                    dto.setAllAmount(contracts.stream().mapToDouble(Contract::getAmount).sum());
+
+                                    // Используем BigDecimal для точного суммирования
+                                    BigDecimal totalAmount = contracts.stream()
+                                            .map(Contract::getAmount)  // Предполагаем, что getAmount() возвращает BigDecimal
+                                            .reduce(BigDecimal.ZERO, BigDecimal::add);
+                                    dto.setAllAmount(totalAmount);
+
                                     dto.setAllCostContract((long) contracts.size());
                                     return dto;
                                 }
