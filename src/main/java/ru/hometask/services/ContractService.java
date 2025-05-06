@@ -13,6 +13,9 @@ import ru.hometask.repositories.*;
 
 import java.util.List;
 
+/**
+ * Сервис для работы с договорами.
+ */
 @Service
 @RequiredArgsConstructor
 public class ContractService {
@@ -23,109 +26,128 @@ public class ContractService {
     private final IssuePointRepository issuePointRepository;
     private final StatusRepository statusRepository;
 
+    /**
+     * Добавляет новый договор.
+     * @param newContractDto DTO с данными нового договора
+     * @return DTO созданного договора
+     * @throws EntityNotFoundException если связанные сущности не найдены
+     */
     @Transactional
-    public NewContractDto addContract(NewContractDto newContract) {
-        Employee employee = employeeRepository.getReferenceById(newContract.getEmployeeId());
-        Client client = clientRepository.getReferenceById(newContract.getClientId());
-        IssuePoint issuePoint = issuePointRepository.getReferenceById(newContract.getIssuePointId());
-        Status status = statusRepository.getReferenceById(newContract.getStatusId());
+    public NewContractDto addContract(NewContractDto newContractDto) {
+        Contract contract = contractMapper.newContractMapping(newContractDto);
 
-        Contract contract = contractMapper.newContractMapping(newContract);
-        contract.setClient(client);
-        contract.setEmployee(employee);
-        contract.setIssuePoint(issuePoint);
-        contract.setStatus(status);
+        contract.setClient(getClient(newContractDto.getClientId()));
+        contract.setEmployee(getEmployee(newContractDto.getEmployeeId()));
+        contract.setIssuePoint(getIssuePoint(newContractDto.getIssuePointId()));
+        contract.setStatus(getStatus(newContractDto.getStatusId()));
 
         contractRepository.save(contract);
-        return newContract;
+        return newContractDto;
     }
 
+    /**
+     * Получает договор по идентификатору.
+     * @param id идентификатор договора
+     * @return DTO с данными договора
+     * @throws EntityNotFoundException если договор не найден
+     */
     public UpdateContractDto getContract(Long id) {
-
-        Contract contract = contractRepository.getReferenceById(id);
-
-        UpdateContractDto updateContract = contractMapper.oldContractMapping(contract);
-        updateContract.setClientId(contract.getClient().getId());
-        updateContract.setEmployeeId(contract.getEmployee().getId());
-        updateContract.setIssuePointId(contract.getIssuePoint().getId());
-        updateContract.setStatusId(contract.getStatus().getId());
-
-        return updateContract;
+        Contract contract = contractRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Договор не найден"));
+        return contractMapper.oldContractMapping(contract);
     }
 
+    /**
+     * Получает список всех договоров.
+     * @return список DTO договоров
+     */
     public List<OldContractDto> getAllContract() {
         return contractMapper.noPasswordContractDTO(contractRepository.findAll());
     }
 
+    /**
+     * Обновляет данные договора.
+     * @param dto DTO с обновленными данными договора
+     * @return DTO обновленного договора
+     * @throws EntityNotFoundException если договор или связанные сущности не найдены
+     */
     @Transactional
     public UpdateContractDto updateContract(UpdateContractDto dto) {
         Contract contract = contractRepository.findById(dto.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Контракт не найден"));
+                .orElseThrow(() -> new EntityNotFoundException("Договор не найден"));
 
         updateFromDto(dto, contract);
         return dto;
     }
 
-    @Transactional
-    public OldContractDto closeStatus (OldContractDto closeStatusContractDto) {
-        Contract contract = contractRepository.findById(closeStatusContractDto.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Контракт не найден"));
+/**
+ * Закрывает договор (устанавливает статус "Закрыт").
+ * @param closeStatusContractDto DTO с полученным для закрытия договором
+ * @return DTO закрытого договора
+ * @throws EntityNotFoundException если договор или статус не найдены
+ */
+@Transactional
+public OldContractDto closeStatus (OldContractDto closeStatusContractDto) {
+            Contract contract = contractRepository.findById(closeStatusContractDto.getId())
+                    .orElseThrow(() -> new EntityNotFoundException("Договор не найден"));
 
-        closeStatusContract(closeStatusContractDto, contract);
-        return closeStatusContractDto;
-    }
+            Status closedStatus = statusRepository.findById(2L)
+                    .orElseThrow(() -> new EntityNotFoundException("Статус 'Закрыт' не найден"));
+
+            contract.setStatus(closedStatus);
+            contractRepository.save(contract);
+            return contractMapper.noPasswordContractDTO(List.of(contract)).get(0);
+        }
 
     /**
-     * Закрывает статус договора, устанавливая статус "Закрыт" (ID = 2)
-     *
-     * @param closeStatusContractDto DTO с данными для закрытия договора
-     * @param contract Сущность договора для обновления
-     * @throws EntityNotFoundException если статус с ID=2 не найден
-     * @throws IllegalArgumentException если переданные параметры null
+     * Вынес все общие методы отдельно, для предотвращения дублирования кода и улучшения читаемости
      */
-    private void closeStatusContract(OldContractDto closeStatusContractDto, Contract contract) {
-        if (closeStatusContractDto == null || contract == null) {
-            throw new IllegalArgumentException("Параметры closeStatusContractDto и contract не могут быть null");
+        private Client getClient(Long id) {
+            return clientRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("Клиент не найден"));
         }
 
-        final Long CLOSED_STATUS_ID = 2L;
-        Status closedStatus = statusRepository.findById(CLOSED_STATUS_ID)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        String.format("Статус с ID=%d не найден", CLOSED_STATUS_ID)));
+        private Employee getEmployee(Long id) {
+            return employeeRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("Сотрудник не найден"));
+        }
 
-        contract.setStatus(closedStatus);
-    }
+        private IssuePoint getIssuePoint(Long id) {
+            return issuePointRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("Пункт выдачи не найден"));
+        }
+
+        private Status getStatus(Long id) {
+            return statusRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("Статус не найден"));
+        }
+
 
     private void updateFromDto(UpdateContractDto dto, Contract contract) {
-        if (dto == null || contract == null) return;
-        Contract oldContract = contractRepository.getReferenceById(dto.getId());
-
-        // Обновляем только те поля, которые не null в DTO
-        if (dto.getClientId() != null) {
-            Client client = clientRepository.findById(dto.getClientId())
-                    .orElseThrow(() -> new EntityNotFoundException("Контракт не найден."));
-            contract.setClient(client);
+        if (dto == null || contract == null) {
+            throw new IllegalArgumentException("DTO и сущность договора не могут быть null");
         }
-        if (!dto.getDateOfIssue().isEqual(oldContract.getDateOfIssue())) {
+
+        if (dto.getClientId() != null) {
+            contract.setClient(getClient(dto.getClientId()));
+        }
+        if (dto.getDateOfIssue() != null) {
             contract.setDateOfIssue(dto.getDateOfIssue());
         }
-        if (dto.getEmployeeId() != null) {
-            Employee employee = employeeRepository.findById(dto.getEmployeeId())
-                    .orElseThrow(() -> new EntityNotFoundException("Сотрудник не найден."));
-            contract.setEmployee(employee);
+        if (dto.getAmount() != null) {
+            contract.setAmount(dto.getAmount());
         }
-        if (!dto.getDateTerm().isEqual(oldContract.getDateTerm())) {
+        if (dto.getEmployeeId() != null) {
+            contract.setEmployee(getEmployee(dto.getEmployeeId()));
+        }
+        if (dto.getDateTerm() != null) {
             contract.setDateTerm(dto.getDateTerm());
         }
         if (dto.getIssuePointId() != null) {
-            IssuePoint issuePoint = issuePointRepository.findById(dto.getIssuePointId())
-                    .orElseThrow(() -> new EntityNotFoundException("Точка выдачи не найдена."));
-            contract.setIssuePoint(issuePoint);
+            contract.setIssuePoint(getIssuePoint(dto.getIssuePointId()));
         }
         if (dto.getStatusId() != null) {
-            Status status = statusRepository.findById(dto.getStatusId())
-                    .orElseThrow(() -> new EntityNotFoundException("Статус не существует."));
-            contract.setStatus(status);
+            contract.setStatus(getStatus(dto.getStatusId()));
         }
     }
 }

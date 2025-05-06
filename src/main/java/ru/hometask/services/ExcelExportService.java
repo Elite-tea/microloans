@@ -1,20 +1,29 @@
 package ru.hometask.services;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.hometask.entities.Contract;
+import ru.hometask.exception.ExcelExportException;
 import ru.hometask.repositories.ContractRepository;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 
+/**
+ * Сервис для экспорта данных в Excel.
+ */
 @Service
-
 public class ExcelExportService {
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+    private static final String[] HEADERS = {
+            "Номер", "Клиент", "Стоимость", "Дата заключения",
+            "Дата окончания", "Статус", "Точка выдачи", "Сотрудник"
+    };
 
     private final ContractRepository contractRepository;
 
@@ -22,56 +31,65 @@ public class ExcelExportService {
         this.contractRepository = contractRepository;
     }
 
-    @Transactional
-    public Resource exportToExcel(Long id) {
-        try (Workbook workbook = new XSSFWorkbook()) {
-            Sheet sheet = workbook.createSheet("Contracts");
+    /**
+     * Экспортирует договор в Excel файл.
+     * @param contractId ID договора для экспорта
+     * @return Ресурс с содержимым Excel файла
+     * @throws RuntimeException если произошла ошибка при генерации файла
+     * @throws EntityNotFoundException если договор не найден
+     */
+    public Resource exportContractToExcel(Long contractId) {
+        Contract contract = contractRepository.findById(contractId)
+                .orElseThrow(() -> new EntityNotFoundException("Договор не найден"));
 
-            // Стиль для заголовков
-            CellStyle headerStyle = createHeaderStyle(workbook);
+        try (Workbook workbook = new XSSFWorkbook();
+             ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
-            // Создаем строку с заголовками
-            Row headerRow = sheet.createRow(0);
-            createHeaderCell(headerRow, 0, "Номер", headerStyle);
-            createHeaderCell(headerRow, 1, "Клиент", headerStyle);
-            createHeaderCell(headerRow, 2, "Стоимость", headerStyle);
-            createHeaderCell(headerRow, 3, "Дата заключения", headerStyle);
-            createHeaderCell(headerRow, 4, "Дата последнего платежа", headerStyle);
-            createHeaderCell(headerRow, 5, "Статус", headerStyle);
-            createHeaderCell(headerRow, 6, "Точка выдачи", headerStyle);
-            createHeaderCell(headerRow, 7, "Сотрудник", headerStyle);
+            Sheet sheet = workbook.createSheet("Договор");
+            createHeaderRow(workbook, sheet);
+            fillContractData(sheet, contract);
+            autoSizeColumns(sheet);
 
-            // Получаем данные из БД
-            Contract contracts = contractRepository.getReferenceById(id);
-
-            // Заполняем данные
-            int rowNum = 1;
-
-                Row row = sheet.createRow(rowNum++);
-                row.createCell(0).setCellValue(contracts.getId());
-                row.createCell(1).setCellValue(contracts.getClient().getFullName());
-                row.createCell(2).setCellValue(String.valueOf(contracts.getAmount()));
-                row.createCell(3).setCellValue(contracts.getDateOfIssue().toString());
-                row.createCell(4).setCellValue(contracts.getDateTerm().toString());
-                row.createCell(5).setCellValue(contracts.getStatus().getName());
-                row.createCell(6).setCellValue(contracts.getIssuePoint().getName());
-                row.createCell(7).setCellValue(contracts.getEmployee().getFullName());
-
-            // Размер колонок
-            for (int i = 0; i < 8; i++) {
-                sheet.autoSizeColumn(i);
-            }
-
-            // Конвертируем в массив байтов
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             workbook.write(outputStream);
-
             return new ByteArrayResource(outputStream.toByteArray());
         } catch (IOException e) {
-            throw new RuntimeException("Ошибка генерации Excel файла", e);
+            throw new ExcelExportException("Ошибка при генерации Excel файла", e);
         }
     }
 
+    /**
+     * Создаём заголовки
+     */
+    private void createHeaderRow(Workbook workbook, Sheet sheet) {
+        Row headerRow = sheet.createRow(0);
+        CellStyle headerStyle = createHeaderStyle(workbook);
+
+        for (int i = 0; i < HEADERS.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(HEADERS[i]);
+            cell.setCellStyle(headerStyle);
+        }
+    }
+
+    /**
+     * Наполняем данными таблицу
+     */
+    private void fillContractData(Sheet sheet, Contract contract) {
+        Row dataRow = sheet.createRow(1);
+
+        dataRow.createCell(0).setCellValue(contract.getId());
+        dataRow.createCell(1).setCellValue(contract.getClient().getFullName());
+        dataRow.createCell(2).setCellValue(contract.getAmount().doubleValue());
+        dataRow.createCell(3).setCellValue(contract.getDateOfIssue().format(DATE_FORMATTER));
+        dataRow.createCell(4).setCellValue(contract.getDateTerm().format(DATE_FORMATTER));
+        dataRow.createCell(5).setCellValue(contract.getStatus().getName());
+        dataRow.createCell(6).setCellValue(contract.getIssuePoint().getName());
+        dataRow.createCell(7).setCellValue(contract.getEmployee().getFullName());
+    }
+
+    /**
+     * Задаём стиль
+     */
     private CellStyle createHeaderStyle(Workbook workbook) {
         CellStyle style = workbook.createCellStyle();
         Font font = workbook.createFont();
@@ -82,9 +100,9 @@ public class ExcelExportService {
         return style;
     }
 
-    private void createHeaderCell(Row row, int column, String value, CellStyle style) {
-        Cell cell = row.createCell(column);
-        cell.setCellValue(value);
-        cell.setCellStyle(style);
+    private void autoSizeColumns(Sheet sheet) {
+        for (int i = 0; i < HEADERS.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
     }
 }

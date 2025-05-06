@@ -11,39 +11,56 @@ import ru.hometask.repositories.IssuePointRepository;
 
 import java.util.List;
 
+/**
+ * Сервис для работы с пунктами выдачи.
+ */
 @Service
 @RequiredArgsConstructor
 public class IssuePointService {
-
     private final IssuePointRepository issuePointRepository;
     private final IssuePointMapper issuePointMapper;
 
-    @Transactional
-    public OldIssuePointDto getIssuePoint(Long issuePointId) {
-        IssuePoint issuePoint = issuePointRepository.getReferenceById(issuePointId);
+    /**
+     * Получает пункт выдачи по ID.
+     * @param issuePointId ID пункта выдачи
+     * @return DTO пункта выдачи
+     * @throws EntityNotFoundException если пункт не найден
+     */
+    @Transactional(readOnly = true)
+    public OldIssuePointDto getIssuePointById(Long issuePointId) {
+        IssuePoint issuePoint = issuePointRepository.findById(issuePointId)
+                .orElseThrow(() -> new EntityNotFoundException("Пункт выдачи не найден"));
         return issuePointMapper.oldIssuePointMapper(issuePoint);
     }
 
-    public List<IssuePoint> getAllIssuePoint () {
-        List<IssuePoint> listpoint = issuePointRepository.findAll();
-
-        return listpoint;
+    /**
+     * Получает все пункты выдачи.
+     * @return список пунктов выдачи
+     */
+    @Transactional(readOnly = true)
+    public List<IssuePoint> getAllIssuePoints() {
+        return issuePointRepository.findAll();
     }
 
+    /**
+     * Обновляет данные пункта выдачи.
+     * @param updateDto DTO с обновленными данными
+     * @return обновленное DTO
+     * @throws EntityNotFoundException если пункт не найден
+     */
     @Transactional
-    public OldIssuePointDto updateIssuePoint (OldIssuePointDto updatePoint) {
-        IssuePoint issuePoint = issuePointRepository.findById(updatePoint.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Точка выдачи не найдена"));
-        issuePointToDto(updatePoint, issuePoint);
-        return updatePoint;
-    }
+    public OldIssuePointDto updateIssuePoint(OldIssuePointDto updateDto) {
+        IssuePoint issuePoint = issuePointRepository.findById(updateDto.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Пункт выдачи не найден"));
 
-    public void issuePointToDto (OldIssuePointDto updatePoint, IssuePoint issuePoint) {
-        if(updatePoint == null || issuePoint == null) return;
-
-        if(!updatePoint.getName().equals(issuePoint.getName())) {
-            issuePoint.setName(updatePoint.getName());
+        if (updateDto.getName() != null) {
+            issuePoint.setName(updateDto.getName());
         }
-    }
+        if (updateDto.getAddress() != null) {
+            issuePoint.setAddress(updateDto.getAddress());
+        }
 
+        issuePointRepository.save(issuePoint);
+        return updateDto;
+    }
 }
