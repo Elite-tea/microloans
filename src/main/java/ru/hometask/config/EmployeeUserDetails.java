@@ -8,25 +8,28 @@ import ru.hometask.entities.Role;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
+/**
+ * Реализация UserDetails для интеграции сотрудников с Spring Security.
+ */
 public class EmployeeUserDetails implements UserDetails {
-
-    private final List<Role> authorities;
-    private final String login;
+    private final String username;
     private final String password;
+    private final List<GrantedAuthority> authorities;
 
     public EmployeeUserDetails(Employee employee) {
-        this.authorities = List.of(employee.getRole());
-        this.login = employee.getLogin();
+        this.username = employee.getLogin();
         this.password = employee.getPassword();
+        this.authorities = mapRolesToAuthorities(employee.getRole());
+    }
+
+    private List<GrantedAuthority> mapRolesToAuthorities(Role role) {
+        return List.of(new SimpleGrantedAuthority(role.getName()));
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities.stream()
-                .map(role -> new SimpleGrantedAuthority(role.getName()))
-                .collect(Collectors.toList());
+        return authorities;
     }
 
     @Override
@@ -36,6 +39,6 @@ public class EmployeeUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return login;
+        return username;
     }
 }
