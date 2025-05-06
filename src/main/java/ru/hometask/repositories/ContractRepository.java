@@ -5,14 +5,11 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 import ru.hometask.entities.Contract;
 
-import java.util.List;
-import java.util.Optional;
-
+/**
+ * Репозиторий для работы с договорами.
+ * Поддерживает JPA спецификации для сложных запросов.
+ */
 @Repository
 public interface ContractRepository extends JpaRepository<Contract, Long>, JpaSpecificationExecutor<Contract> {
-
-    Optional<Contract> findById(Long id);
-
-    List <Contract> findAllByStatusId(Long statusId);
-
+    // Использую унаследованные методы из JpaRepository
 }
