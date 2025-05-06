@@ -8,23 +8,25 @@ import org.springframework.stereotype.Service;
 import ru.hometask.entities.Employee;
 import ru.hometask.repositories.EmployeeRepository;
 
-import java.util.Optional;
-
+/**
+ * Сервис для загрузки данных пользователя в Spring Security.
+ */
 @Service
 @RequiredArgsConstructor
 public class EmployeeDetailsService implements UserDetailsService {
 
     private final EmployeeRepository employeeRepository;
 
+    /**
+     * Загружает пользователя по логину.
+     * @param username логин пользователя
+     * @return UserDetails с данными пользователя
+     * @throws UsernameNotFoundException если пользователь не найден
+     */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-
-        Optional<Employee> optionalEmployee = employeeRepository.findByLogin(username);
-
-        if (optionalEmployee.isEmpty()) {
-            throw new UsernameNotFoundException("User with username " + username + " not found");
-        }
-
-        return new EmployeeUserDetails(optionalEmployee.get());
+        Employee employee = employeeRepository.findByLogin(username)
+                .orElseThrow(() -> new UsernameNotFoundException(username));
+        return new EmployeeUserDetails(employee);
     }
 }
