@@ -4,10 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.hometask.dto.AdminReportDto;
 import ru.hometask.entities.Contract;
-import ru.hometask.mappers.ReportMapper;
 import ru.hometask.repositories.ContractRepository;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -16,15 +16,16 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ReportService {
 
-    ContractService contractService;
     private final ContractRepository contractRepository;
-    ReportMapper reportMapper;
 
-    public List<AdminReportDto> getReportActive() {
-        // Все активные договора
+    public List<AdminReportDto> getReport() {
+        // Все договора
         List<Contract> sourceContract = contractRepository.findAll();
 
-        List<AdminReportDto> returnReportActive = sourceContract.stream()
+        // Используем BigDecimal для точного суммирования
+        // Предполагаем, что getAmount() возвращает BigDecimal
+
+        return new ArrayList<>(sourceContract.stream()
                 .filter(contract -> contract.getIssuePoint() != null && contract.getStatus() != null)
                 .collect(Collectors.groupingBy(
                         contract -> Map.entry(
@@ -49,10 +50,6 @@ public class ReportService {
                                 }
                         )
                 ))
-                .values()
-                .stream()
-                .collect(Collectors.toList());
-
-        return returnReportActive;
+                .values());
     }
 }

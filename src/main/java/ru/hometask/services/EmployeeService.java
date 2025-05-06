@@ -7,9 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.hometask.dto.OldEmployeeDto;
 import ru.hometask.dto.UpdateEmployeeDto;
 import ru.hometask.entities.Employee;
-import ru.hometask.entities.IssuePoint;
-import ru.hometask.entities.PowerOfAttorney;
-import ru.hometask.entities.Role;
 import ru.hometask.mappers.EmployeeMapper;
 import ru.hometask.repositories.EmployeeRepository;
 import ru.hometask.repositories.IssuePointRepository;
@@ -18,6 +15,10 @@ import ru.hometask.repositories.RoleRepository;
 
 import java.util.List;
 
+/**
+ * Сервис для работы с сотрудниками.
+ * Обеспечивает операции CRUD и бизнес-логику связанную с сотрудниками.
+ */
 @Service
 @RequiredArgsConstructor
 public class EmployeeService {
@@ -27,61 +28,63 @@ public class EmployeeService {
     private final RoleRepository roleRepository;
     private final PowerOfAttorneyRepository powerOfAttorneyRepository;
 
-    public OldEmployeeDto getEmployee (Long idEmployee) {
-        Employee employee = employeeRepository.getReferenceById(idEmployee);
-        OldEmployeeDto oldEmployee = employeeMapper.oldEmployeeMapping(employee);
-
-        oldEmployee.setIssuePointId(employee.getIssuePoint().getId());
-        oldEmployee.setRoleId(employee.getRole().getId());
-        oldEmployee.setPowerOfAttorneyId(employee.getPowerOfAttorney().getId());
-        return oldEmployee;
+    /**
+     * Получает данные сотрудника по ID.
+     * @param employeeId ID сотрудника
+     * @return DTO с данными сотрудника
+     * @throws EntityNotFoundException если сотрудник не найден
+     */
+    public OldEmployeeDto getEmployeeById(Long employeeId) {
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new EntityNotFoundException("Сотрудник с ID " + employeeId + " не найден"));
+        return employeeMapper.oldEmployeeMapping(employee);
     }
 
-    public List<OldEmployeeDto> getAllEmployee () {
+    /**
+     * Получает список всех сотрудников.
+     * @return список DTO сотрудников
+     */
+    public List<OldEmployeeDto> getAllEmployees() {
         return employeeMapper.toUpdateDtoList(employeeRepository.findAll());
     }
 
+    /**
+     * Обновляет данные сотрудника.
+     * @param updateDto DTO с обновленными данными
+     * @return обновленное DTO
+     * @throws EntityNotFoundException если сотрудник или связанные сущности не найдены
+     */
     @Transactional
-    public UpdateEmployeeDto updateEmployee (UpdateEmployeeDto updateEmployee) {
-        Employee employee = employeeRepository.findById(updateEmployee.getId())
+    public UpdateEmployeeDto updateEmployee(UpdateEmployeeDto updateDto) {
+        Employee employee = employeeRepository.findById(updateDto.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Сотрудник не найден"));
-        updateFromDto(updateEmployee, employee);
-        return updateEmployee;
+
+        updateEmployeeFromDto(updateDto, employee);
+        employeeRepository.save(employee);
+        return updateDto;
     }
 
-    private void updateFromDto(UpdateEmployeeDto dto, Employee employee) {
-        if (dto == null || employee == null) return;
-
-        if (dto.getIssuePointId() != null) {
-            IssuePoint issuePoint = issuePointRepository.findById(dto.getIssuePointId())
-                            .orElseThrow(() -> new EntityNotFoundException("Точка выдачи не найдена"));
-            employee.setIssuePoint(issuePoint);
-        }
-
+    private void updateEmployeeFromDto(UpdateEmployeeDto dto, Employee employee) {
         if (dto.getFullName() != null) {
             employee.setFullName(dto.getFullName());
         }
-
-        if (dto.getPassword() != null) {
-            employee.setPassword(dto.getPassword());
-        }
-
         if (dto.getLogin() != null) {
             employee.setLogin(dto.getLogin());
         }
-
+        if (dto.getPassword() != null) {
+            employee.setPassword(dto.getPassword());
+        }
         if (dto.getRoleId() != null) {
-            Role role = roleRepository.findById(dto.getRoleId())
-                            .orElseThrow(() -> new EntityNotFoundException("Роль не найдена"));
-
-            employee.setRole(role);
+            employee.setRole(roleRepository.findById(dto.getRoleId())
+                    .orElseThrow(() -> new EntityNotFoundException("Роль не найдена")));
         }
-
+        if (dto.getIssuePointId() != null) {
+            employee.setIssuePoint(issuePointRepository.findById(dto.getIssuePointId())
+                    .orElseThrow(() -> new EntityNotFoundException("Пункт выдачи не найден")));
+        }
         if (dto.getPowerOfAttorneyId() != null) {
-            PowerOfAttorney powerOfAttorney = powerOfAttorneyRepository.findById(dto.getPowerOfAttorneyId())
-                            .orElseThrow(() -> new EntityNotFoundException("Доверенность не найдена"));
-            employee.setPowerOfAttorney(powerOfAttorney);
+            employee.setPowerOfAttorney(powerOfAttorneyRepository.findById(dto.getPowerOfAttorneyId())
+                    .orElseThrow(() -> new EntityNotFoundException("Доверенность не найдена")));
         }
-
     }
 }
