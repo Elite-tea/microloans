@@ -36,10 +36,10 @@ public class ContractService {
     public NewContractDto addContract(NewContractDto newContractDto) {
         Contract contract = contractMapper.newContractMapping(newContractDto);
 
-        contract.setClient(getClient(newContractDto.getClientId()));
-        contract.setEmployee(getEmployee(newContractDto.getEmployeeId()));
-        contract.setIssuePoint(getIssuePoint(newContractDto.getIssuePointId()));
-        contract.setStatus(getStatus(newContractDto.getStatusId()));
+        contract.setClient(clientRepository.getReferenceById(newContractDto.getClientId()));
+        contract.setEmployee(employeeRepository.getReferenceById(newContractDto.getEmployeeId()));
+        contract.setIssuePoint(issuePointRepository.getReferenceById(newContractDto.getIssuePointId()));
+        contract.setStatus(statusRepository.getReferenceById(newContractDto.getStatusId()));
 
         contractRepository.save(contract);
         return newContractDto;
